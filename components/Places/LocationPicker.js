@@ -1,13 +1,22 @@
-import { Alert, StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Alert, Image, StyleSheet, View, Text } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+
 import {
   getCurrentPositionAsync,
   useForegroundPermissions,
   PermissionStatus,
 } from "expo-location";
+
 import { Colors } from "../../constants/colors";
 import OutlinedButton from "../UI/OutlinedButton";
+import { getMapPreview } from "../../util/location";
 
 function LocationPicker() {
+  const [pickedLocation, setPickedLocation] = useState();
+
+  const navigation = useNavigation();
+
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
 
@@ -39,14 +48,31 @@ function LocationPicker() {
     }
 
     const location = await getCurrentPositionAsync();
-    console.log(location);
+    setPickedLocation({
+      lat: location.coords.latitude,
+      lng: location.coords.longitude,
+    });
   }
 
-  function pickOnMapHandler() {}
+  function pickOnMapHandler() {
+    navigation.navigate("Map");
+  }
 
+  let locationPreview = <Text>No location picked yet.</Text>;
+
+  if (pickedLocation) {
+    locationPreview = (
+      <Image
+        style={styles.image}
+        source={{ uri: getMapPreview(pickedLocation.lat, pickedLocation.lng) }}
+      />
+    );
+  }
+
+  console.log(locationPreview);
   return (
     <View>
-      <View style={styles.mapPreview}></View>
+      <View style={styles.mapPreview}>{locationPreview}</View>
       <View style={styles.actions}>
         <OutlinedButton icon="location" onPress={getLocationHandler}>
           Locate User
@@ -58,7 +84,6 @@ function LocationPicker() {
     </View>
   );
 }
-
 export default LocationPicker;
 
 const styles = StyleSheet.create({
@@ -76,5 +101,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
+  },
+
+  image: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 5,
   },
 });
