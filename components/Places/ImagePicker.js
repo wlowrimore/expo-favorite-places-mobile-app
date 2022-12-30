@@ -9,7 +9,7 @@ import {
 import OutlinedButton from "../UI/OutlinedButton";
 import { Colors } from "../../constants/colors";
 
-function ImagePicker() {
+function ImagePicker({ onTakeImage }) {
   const [pickedImage, setPickedImageu] = useState();
 
   const [cameraPermissionInformation, requestPermission] =
@@ -47,6 +47,7 @@ function ImagePicker() {
     });
 
     setPickedImageu(image.assets[0].uri);
+    onTakeImage(image.assets[0].uri);
   }
 
   let imagePreview = <Text>No image taken yet.</Text>;
